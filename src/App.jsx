@@ -1,28 +1,42 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Navbar, { THEMES } from './components/Navbar';
+import Hero from './components/Hero';
+import { About, Skills, Projects, Contact } from './components/Sections';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const sectionsRef = useRef({});
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    if (theme === 'dark') document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+  }, [theme]);
+
+  const onNavigate = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const onCta = () => onNavigate('projects');
+
+  const themeBg = useMemo(() => THEMES[theme].bg, [theme]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
-        </div>
-      </div>
+    <div className={`min-h-screen bg-gradient-to-br ${themeBg} transition-colors duration-500`}> 
+      <Navbar onNavigate={onNavigate} theme={theme} setTheme={setTheme} />
+      <main className="overflow-x-hidden">
+        <Hero onCta={onCta} />
+        <About />
+        <Skills />
+        <Projects />
+        <Contact />
+      </main>
+      <footer className="border-t border-white/10 py-6 text-center text-sm text-slate-500">
+        © {new Date().getFullYear()} Manav Dhakate — Crafted with care.
+      </footer>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
